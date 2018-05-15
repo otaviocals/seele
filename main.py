@@ -2,7 +2,8 @@
 #########################################
 #                                       #
 #           Splunk Enterprise           #
-#                  Environment Lab                      #
+#        Environment Lab Engine         #
+#               (SEELE)                 #
 #                v0.1                   #
 #                                       #
 #       written by Otavio Cals          #
@@ -19,10 +20,17 @@
 
 from sys import platform, path
 from os.path import abspath, join
+from time import time
+from importlib.util import find_spec
 
 ##############################
 #          Pre-conf          #
 ##############################
+
+if(find_spec("paramiko") is None):
+	print("\nInstalling required packages...\n")
+	import pip
+	pip.main(['install', '-q', 'paramiko'])
 
 if platform.startswith("win32") or current_os.startswith("cygwin"):
 	slash = "\\"
@@ -54,7 +62,7 @@ def Setup(uf_url,enterprise_url, prev_configs, prev_servers):
 	path.append(script_folder)
 	
 	from Scripts.utils import isfile, config_write, config_read, servers_write, servers_read
-	from Scripts.splunk_install import ssh_connect, ssh_disconnect, download_splunk, install_splunk, index_config, sh_config, uf_config
+	from Scripts.splunk_install import ssh_connect, ssh_disconnect, download_splunk, install_splunk, uf_install_splunk, index_config, sh_config, uf_config
 	
 	indexers_list = []
 	sh_list = []
@@ -84,10 +92,14 @@ def Setup(uf_url,enterprise_url, prev_configs, prev_servers):
 		print("Server files not found!")
 		return
 
+	start_time = time()
+		
 	#Splunk Setup
 	for server_line in servers:
 		server_data = server_line.split(";")
 		server_data = list(filter(None, server_data))
+		
+		print("\n\nConfiguring server: "+server_data[1]+"\n")
 		
 		# Connect
 		ssh_connection = ssh_connect(server_data[2], user=server_data[3], password=server_data[4])
@@ -102,12 +114,16 @@ def Setup(uf_url,enterprise_url, prev_configs, prev_servers):
 		print(download_output)
 		
 		# Install
-		install_output = install_splunk(ssh_connection,server_data[4])
-		print(install_output)
+		if(server_data[0]!="UNIVERSAL_FORWARDER"):
+			install_output = install_splunk(ssh_connection,server_data[5])
+			print(install_output)
+		else:
+			install_output = uf_install_splunk(ssh_connection,server_data[5])
+			print(install_output)
 		
 		# Config
 		if(server_data[0]=="INDEXER"):
-			indexers_list.append([server_data[2], server_data[3], server_data[4]])
+			indexers_list.append([server_data[2], server_data[3], server_data[5]])
 			config_output = index_config(ssh_connection,server_data)
 		elif(server_data[0]=="SEARCH_HEAD"):
 			sh_list.append(server_data[2])
@@ -120,6 +136,21 @@ def Setup(uf_url,enterprise_url, prev_configs, prev_servers):
 		#Disconnect
 		ssh_disconnect_output = ssh_disconnect(ssh_connection)
 		print(ssh_disconnect_output)
+		
+	elapsed_time = str(round(time() - start_time,1))
+	
+	print("\n\nSplunk Environment built!\nTotal elapsed time: "+elapsed_time+" seconds.")
+	print("Splunk servers built: "+str(len(servers)))
+	print("Total splunk indexers: "+str(len(indexers_list)))
+	for server in indexers_list:
+		print("	"+server[0])
+	print("Total splunk search heads: "+str(len(sh_list)))
+	for server in sh_list:
+		print("	"+server)
+	print("Total splunk universal forwarders: "+str(len(uf_list)))
+	for server in uf_list:
+		print("	"+server)
+	print("\n\n")
 ##############################
 #            Main            #
 ##############################
@@ -150,6 +181,6 @@ if __name__ == "__main__" :
 		print("Invalid option.")
 		quit()
 		
-	print("\nStarting...\n")
+	print("\n\n\nStarting...\n")
 	
 	Setup(uf_url, enterprise_url, prev_configs, prev_servers)

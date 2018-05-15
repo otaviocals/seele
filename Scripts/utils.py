@@ -42,8 +42,9 @@ def servers_write(input_path):
 			server_name = input("\nEnter the Indexer ("+str(i+1)+") name:\n")
 			server_host = input("Enter the Indexer ("+str(i+1)+") ip address:\n")
 			server_user = input("Enter the Indexer ("+str(i+1)+") user:\n")
-			server_pass = input("Enter the Indexer ("+str(i+1)+") password:\n")
-			f.write("INDEXER"+";"+server_name+";"+server_host+";"+server_user+";"+server_pass+";\n")
+			server_pass = input("Enter the Indexer ("+str(i+1)+") server password:\n")
+			splunk_pass = input("Enter the Indexer ("+str(i+1)+") splunk password:\n")
+			f.write("INDEXER"+";"+server_name+";"+server_host+";"+server_user+";"+server_pass+";"+splunk_pass+"\n")
 			
 		search_total = input("\nEnter the total of search heads:\n")
 		try:
@@ -55,8 +56,9 @@ def servers_write(input_path):
 			server_name = input("\nEnter the Search Head ("+str(i+1)+") name:\n")
 			server_host = input("Enter the Search Head ("+str(i+1)+") ip address:\n")
 			server_user = input("Enter the Search Head ("+str(i+1)+") user:\n")
-			server_pass = input("Enter the Search Head ("+str(i+1)+") password:\n")
-			f.write("SEARCH_HEAD"+";"+server_name+";"+server_host+";"+server_user+";"+server_pass+";\n")
+			server_pass = input("Enter the Search Head ("+str(i+1)+") server password:\n")
+			splunk_pass = input("Enter the Search Head ("+str(i+1)+") splunk password:\n")
+			f.write("SEARCH_HEAD"+";"+server_name+";"+server_host+";"+server_user+";"+server_pass+";"+splunk_pass+"\n")
 		
 		uf_total = input("\nEnter the total of universal forwarders:\n")
 		try:
@@ -65,11 +67,12 @@ def servers_write(input_path):
 			print("Not a number!")
 			quit()
 		for i in range(0, uf_total):
-			server_name = input("\nEnter the Universal ("+str(i+1)+") Forwarder name:\n")
-			server_host = input("Enter the Universal ("+str(i+1)+") Forwarder ip address:\n")
-			server_user = input("Enter the Universal ("+str(i+1)+") Forwarder user:\n")
-			server_pass = input("Enter the Universal ("+str(i+1)+") Forwarder password:\n")
-			f.write("UNIVERSAL_FORWARDER"+";"+server_name+";"+server_host+";"+server_user+";"+server_pass+";\n")
+			server_name = input("\nEnter the Universal Forwarder ("+str(i+1)+") name:\n")
+			server_host = input("Enter the Universal Forwarder ("+str(i+1)+") ip address:\n")
+			server_user = input("Enter the Universal Forwarder ("+str(i+1)+") user:\n")
+			server_pass = input("Enter the Universal Forwarder ("+str(i+1)+") server password:\n")
+			splunk_pass = input("Enter the Universal Forwarder ("+str(i+1)+") splunk password:\n")
+			f.write("UNIVERSAL_FORWARDER"+";"+server_name+";"+server_host+";"+server_user+";"+server_pass+";"+splunk_pass+"\n")
 		
 	with open(input_path,"r") as f:
 		servers = f.readlines()
