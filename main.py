@@ -19,7 +19,8 @@
 ##############################
 
 from sys import platform, path
-from os.path import abspath, join
+from os import mkdir
+from os.path import abspath, join, exists
 from time import time
 from importlib.util import find_spec
 
@@ -32,7 +33,7 @@ if(find_spec("paramiko") is None):
 	import pip
 	pip.main(['install', '-q', 'paramiko'])
 
-if platform.startswith("win32") or current_os.startswith("cygwin"):
+if platform.startswith("win32") or platform.startswith("cygwin"):
 	slash = "\\"
 	conf_file_type = ".dll"
 else:
@@ -49,6 +50,12 @@ def resource_path(relative_path):
 	return join(base_path,relative_path)
 	
 	
+config_folder = resource_path("Config")
+if not(exists(config_folder)):
+        mkdir(config_folder)
+input_folder = resource_path("Inputs")
+if not(exists(input_folder)):
+        mkdir(input_folder)
 config_path = resource_path("Config"+slash+"config"+conf_file_type)
 input_path  = resource_path("Inputs"+slash+"inputs"+conf_file_type)
 script_folder = resource_path("Scripts"+slash)
